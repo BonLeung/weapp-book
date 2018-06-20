@@ -20,10 +20,10 @@ export function login() {
   return new Promise((resolve, reject) => {
     qcloud.setLoginUrl(config.loginUrl)
     qcloud.login({
-      success: function(res) {
+      success(res) {
         resolve(res)
       },
-      fail: function(err) {
+      fail(err) {
         reject(err)
       }
     })

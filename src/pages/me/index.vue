@@ -3,16 +3,18 @@
     <div class="userinfo" v-if="userInfo">
       <img :src="userInfo.avatarUrl" alt="">
       <p>{{userInfo.nickName}}</p>
+      <year-progress></year-progress>
+      <button class="btn" @click="scanBook">添加图书</button>
     </div>
     <div class="login-wrap" v-else>
       <button class="btn" v-if="!hasUserInfo && canIUse"  open-type="getUserInfo" @getuserinfo="onGetUserInfo">微信登录</button>
     </div>
-    <!-- <button class="btn" @click="scanBook">添加图书</button> -->
   </div>
 </template>
 
 <script>
 import { login } from '@/utils.js'
+import YearProgress from '@/components/YearProgress'
 
 export default {
   data() {
@@ -28,7 +30,11 @@ export default {
   },
   methods: {
     async onGetUserInfo(e) {
-      console.log(e)
+      // 拒绝授权
+      if (e.mp.detail.errMsg.includes('deny')) {
+        return
+      }
+      // 接受授权
       wx.showLoading({
         title: '正在登录...',
         mask: true
@@ -41,9 +47,13 @@ export default {
         })
         this.userInfo = userInfo
         wx.setStorageSync('userInfo', userInfo)
-      }).catch(err => {
-        wx.hideLoading()
+      }).catch((err) => {
         console.log(err)
+        wx.hideLoading()
+        wx.showToast({
+          title: '授权失败',
+          icon: 'success'
+        })
       })
     },
     scanBook() {
@@ -57,6 +67,9 @@ export default {
         }
       })
     }
+  },
+  components: {
+    YearProgress
   }
 }
 </script>
@@ -65,11 +78,11 @@ export default {
 .container {
   padding: 0 30px;
   .userinfo {
-    margin-top: 100px;
+    margin-top: 50px;
     text-align: center;
     img {
-      width: 150px;
-      height: 150px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
     }
     p {

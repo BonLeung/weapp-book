@@ -12,6 +12,7 @@
 	"compileType": "miniprogram",
 	"appid": "wx1c38ee39460a3c8d",
 	"projectname": "mpvue-demo",
+	"libVersion": "1.9.94",
 	"condition": {
 		"search": {
 			"current": -1,
