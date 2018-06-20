@@ -1,15 +1,19 @@
 <template>
   <div class="container">
-    <div class="userinfo">
+    <div class="userinfo" v-if="userInfo">
       <img :src="userInfo.avatarUrl" alt="">
       <p>{{userInfo.nickName}}</p>
     </div>
+    <div class="login-wrap" v-else>
+      <button class="btn" v-if="!hasUserInfo && canIUse"  open-type="getUserInfo" @getuserinfo="onGetUserInfo">微信登录</button>
+    </div>
     <!-- <button class="btn" @click="scanBook">添加图书</button> -->
-    <button class="btn" v-if="!hasUserInfo && canIUse"  open-type="getUserInfo" bindgetuserinfo="getUserInfo">获取个人信息</button>
   </div>
 </template>
 
 <script>
+import { login } from '@/utils.js'
+
 export default {
   data() {
     return {
@@ -18,9 +22,29 @@ export default {
       canIUse: wx.canIUse('button.open-type.getUserInfo')
     }
   },
+  created() {
+    const userInfo = wx.getStorageSync('userInfo')
+    this.userInfo = userInfo
+  },
   methods: {
-    getUserInfo(e) {
+    async onGetUserInfo(e) {
       console.log(e)
+      wx.showLoading({
+        title: '正在登录...',
+        mask: true
+      })
+      login().then(userInfo => {
+        wx.hideLoading()
+        wx.showToast({
+          title: '授权成功',
+          icon: 'success'
+        })
+        this.userInfo = userInfo
+        wx.setStorageSync('userInfo', userInfo)
+      }).catch(err => {
+        wx.hideLoading()
+        console.log(err)
+      })
     },
     scanBook() {
       wx.scanCode({
@@ -48,6 +72,19 @@ export default {
       height: 150px;
       border-radius: 50%;
     }
+    p {
+      margin-top: 10px;
+      line-height: 1;
+      font-size: 16px;
+      color: #292929;
+    }
+  }
+  .login-wrap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 80%;
+    transform: translate(-50%, -50%);
   }
 }
 </style>
