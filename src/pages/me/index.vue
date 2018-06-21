@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { login, post } from '@/utils.js'
+import { login, post, showModal } from '@/utils.js'
 import YearProgress from '@/components/YearProgress'
 
 export default {
@@ -56,11 +56,16 @@ export default {
       })
     },
     async addBook(isbn) {
-      let res = await post('/weapp/book', {
+      post('/weapp/books', {
         isbn,
-        openId: this.userInfo.openId
+        openid: this.userInfo.openId
+      }).then(res => {
+        if (res.code === 0) {
+          showModal('添加图书成功', res.data.title)
+        }
+      }).catch(() => {
+        showModal('提示', '添加图书失败')
       })
-      console.log(res)
     },
     scanBook() {
       wx.scanCode({
@@ -70,6 +75,7 @@ export default {
         },
         fail: err => {
           console.log(err)
+          showModal('提示', '扫描失败')
         }
       })
     }
