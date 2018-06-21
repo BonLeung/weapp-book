@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { login } from '@/utils.js'
+import { login, post } from '@/utils.js'
 import YearProgress from '@/components/YearProgress'
 
 export default {
@@ -24,7 +24,7 @@ export default {
       canIUse: wx.canIUse('button.open-type.getUserInfo')
     }
   },
-  created() {
+  async created() {
     const userInfo = wx.getStorageSync('userInfo')
     this.userInfo = userInfo
   },
@@ -47,8 +47,7 @@ export default {
         })
         this.userInfo = userInfo
         wx.setStorageSync('userInfo', userInfo)
-      }).catch((err) => {
-        console.log(err)
+      }).catch(() => {
         wx.hideLoading()
         wx.showToast({
           title: '授权失败',
@@ -56,11 +55,18 @@ export default {
         })
       })
     },
+    async addBook(isbn) {
+      let res = await post('/weapp/book', {
+        isbn,
+        openId: this.userInfo.openId
+      })
+      console.log(res)
+    },
     scanBook() {
       wx.scanCode({
         onlyFromCamera: true,
         success: res => {
-          console.log(res)
+          this.addBook(res.result)
         },
         fail: err => {
           console.log(err)
