@@ -56,14 +56,24 @@ export default {
       })
     },
     async addBook(isbn) {
+      wx.showLoading({
+        title: '正在添加图书...',
+        mask: true
+      })
       post('/weapp/books', {
         isbn,
         openid: this.userInfo.openId
       }).then(res => {
+        wx.hideLoading()
         if (res.code === 0) {
           showModal('添加图书成功', res.data.title)
         }
-      }).catch(() => {
+      }).catch((res) => {
+        wx.hideLoading()
+        if (res.data.msg) {
+          showModal('提示', res.data.msg)
+          return
+        }
         showModal('提示', '添加图书失败')
       })
     },
@@ -74,7 +84,9 @@ export default {
           this.addBook(res.result)
         },
         fail: err => {
-          console.log(err)
+          if (err.errMsg.includes('cancel')) {
+            return
+          }
           showModal('提示', '扫描失败')
         }
       })

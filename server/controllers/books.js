@@ -3,9 +3,52 @@ const { mysql } = require('../qcloud')
 const doubanIsbnApi = 'https://api.douban.com/v2/book/isbn/'
 
 async function all(ctx, next) {
-  const books = await mysql('books').select('*')
+  console.log(111)
+  const { page, size = 10 } = ctx.request.query
+  const offset = (Number(page) - 1 || 0) * size
+  const books = await mysql('books')
+                        .select('books.*', 'cSessionInfo.user_info')
+                        .join('cSessionInfo', 'books.openid', '=', 'cSessionInfo.open_id')
+                        .limit(size)
+                        .offset(offset)
+                        .orderBy('books.id', 'desc')
+  const list = books.map(book => {
+    const user_info = JSON.parse(book.user_info)
+    return Object.assign({}, book, {
+      user_info: {
+        nickName: user_info.nickName
+      }
+    })
+  })
   ctx.state.data = {
-    list: books
+    list: list
+  }
+}
+
+async function get(ctx, next) {
+  const { id } = ctx.params
+  await mysql('books').where('id', id).increment('count', 1)
+  const queryRes = await mysql('books')
+                      .select('books.*', 'cSessionInfo.user_info')
+                      .where('id', id)
+                      .join('cSessionInfo', 'books.openid', '=', 'cSessionInfo.open_id')
+  if (queryRes.length > 0) {
+    const user_info = JSON.parse(queryRes[0].user_info)
+    const bookinfo = Object.assign({}, queryRes[0], {
+      user_info: {
+        nickName: user_info.nickName
+      }
+    })
+    ctx.state.data = {
+      bookinfo: bookinfo
+    }
+  } else {
+    ctx.state = {
+      code: -1,
+      data: {
+        msg: '查询失败'
+      }
+    }
   }
 }
 
@@ -60,5 +103,6 @@ async function post(ctx, next) {
 
 module.exports = {
   post,
-  all
+  all,
+  get
 }

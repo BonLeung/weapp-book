@@ -4,18 +4,23 @@
       <img :src="book.image" alt="" mode="scaleToFill">
     </div>
     <div class="name">{{book.title}}</div>
+    <Rate :value="book.rate"></Rate>
   </div>
 </template>
 
 <script>
+import Rate from '@/components/Rate'
+
 export default {
-  props: ['book']
+  props: ['book', 'detailUrl'],
+  components: {
+    Rate
+  }
 }
 </script>
 
 <style lang="scss">
 .book-card {
-  width: 33.3%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -31,7 +36,7 @@ export default {
   }
   .name {
     width: 90px;
-    padding: 5px 5px 0;
+    padding: 5px;
     line-height: 1;
     font-size: 12px;
     color: #494949;

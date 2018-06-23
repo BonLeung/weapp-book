@@ -31,7 +31,8 @@ const CONF = {
         port: 3306,
         user: 'root',
         db: 'cAuth',
-        pass: '123',
+        // pass: '123',
+        pass: 'wx1c38ee39460a3c8d',
         char: 'utf8mb4'
     },
 
@@ -48,8 +49,7 @@ const CONF = {
     },
 
     // 微信登录态有效期
-    wxLoginExpires: 7200,
-    wxMessageToken: 'abcdefgh'
+    wxLoginExpires: 7200
 }
 
 module.exports = CONF
