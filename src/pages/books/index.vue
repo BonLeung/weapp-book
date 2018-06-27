@@ -1,5 +1,6 @@
 <template>
   <div class="books">
+    <TopSwiper :tops="tops"></TopSwiper>
     <div class="book-list">
       <li class="book-item" v-for="book in books" :key="book.id">
         <a :href="'/pages/detail/main?id=' + book.id">
@@ -15,31 +16,40 @@
 import { get } from '@/utils.js'
 import BookCard from '@/components/BookCard'
 import NoMore from '@/components/NoMore'
+import TopSwiper from '@/components/TopSwiper'
 
 export default {
   data() {
     return {
       books: [],
+      tops: [],
       page: 1,
       size: 15,
       more: true
     }
   },
   mounted() {
-    this._getBooks(true)
+    this.getBooks(true)
+    this.getTop()
   },
   onPullDownRefresh() {
-    this._getBooks(true)
+    this.getBooks(true)
   },
   onReachBottom() {
     if (!this.more) {
       return false
     }
     this.page = this.page + 1
-    this._getBooks()
+    this.getBooks()
   },
   methods: {
-    async _getBooks(init) {
+    async getTop() {
+      const res = await get('/weapp/top')
+      if (res && res.code === 0) {
+        this.tops = res.data.list
+      }
+    },
+    async getBooks(init) {
       if (init) {
         this.page = 1
         this.more = true
@@ -65,7 +75,8 @@ export default {
   },
   components: {
     BookCard,
-    NoMore
+    NoMore,
+    TopSwiper
   }
 }
 </script>

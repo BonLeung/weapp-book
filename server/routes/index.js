@@ -38,4 +38,6 @@ router.post('/books', controllers.books.post)
 router.get('/books', controllers.books.all)
 router.get('/books/:id', controllers.books.get)
 
+router.get('/top', controllers.top.get)
+
 module.exports = router
