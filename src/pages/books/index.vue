@@ -34,6 +34,7 @@ export default {
   },
   onPullDownRefresh() {
     this.getBooks(true)
+    this.getTop()
   },
   onReachBottom() {
     if (!this.more) {

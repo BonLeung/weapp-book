@@ -32,9 +32,10 @@ async function get(ctx, next) {
                       .select('books.*', 'cSessionInfo.user_info')
                       .where('id', id)
                       .join('cSessionInfo', 'books.openid', '=', 'cSessionInfo.open_id')
-  if (queryRes.length > 0) {
-    const user_info = JSON.parse(queryRes[0].user_info)
-    const bookinfo = Object.assign({}, queryRes[0], {
+                      .first()
+  if (queryRes.id) {
+    const user_info = JSON.parse(queryRes.user_info)
+    const bookinfo = Object.assign({}, queryRes, {
       user_info: {
         nickName: user_info.nickName
       }

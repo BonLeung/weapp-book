@@ -43,6 +43,9 @@
         const res = await get(`/weapp/books/${this.id}`)
         if (res && res.code === 0) {
           this.bookinfo = res.data.bookinfo
+          wx.setNavigationBarTitle({
+            title: res.data.bookinfo.title
+          })
         }
       }
     },
