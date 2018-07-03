@@ -3,7 +3,6 @@ const { mysql } = require('../qcloud')
 const doubanIsbnApi = 'https://api.douban.com/v2/book/isbn/'
 
 async function all(ctx, next) {
-  console.log(111)
   const { page, size = 10 } = ctx.request.query
   const offset = (Number(page) - 1 || 0) * size
   const books = await mysql('books')
@@ -36,6 +35,7 @@ async function get(ctx, next) {
   if (queryRes.id) {
     const user_info = JSON.parse(queryRes.user_info)
     const bookinfo = Object.assign({}, queryRes, {
+      tags: queryRes.tags.split(','),
       user_info: {
         nickName: user_info.nickName
       }

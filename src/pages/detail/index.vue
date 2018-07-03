@@ -16,6 +16,12 @@
         </ul>
       </div>
     </div>
+    <div class="tags">
+      <div class="title">标签</div>
+      <ul class="badge-list">
+        <li class="badge" v-for="(tag, index) in bookinfo.tags" :key="index">{{tag}}</li>
+      </ul>
+    </div>
     <div class="summary">
       <div class="title">图书简介</div>
       <p class="desc">{{bookinfo.summary}}</p>
@@ -95,6 +101,30 @@
             white-space: nowrap;
           }
         }
+      }
+    }
+  }
+  .tags {
+    .title {
+      padding: 0 10px;
+      height: 30px;
+      line-height: 30px;
+      background: #f5f5f5;
+      font-size: 14px;
+    }
+    .badge-list {
+      padding: 0 10px;
+      margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      .badge {
+        margin: 0 10px 5px 0;
+        padding: 5px 10px;
+        border: 1px solid #EA5149;
+        border-radius: 5px;
+        line-height: 1;
+        font-size: 10px;
+        color: #666;
       }
     }
   }
