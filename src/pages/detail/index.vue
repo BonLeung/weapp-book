@@ -17,14 +17,28 @@
       </div>
     </div>
     <div class="tags">
-      <div class="title">标签</div>
+      <title text="标签"></title>
       <ul class="badge-list">
         <li class="badge" v-for="(tag, index) in bookinfo.tags" :key="index">{{tag}}</li>
       </ul>
     </div>
-    <div class="summary">
-      <div class="title">图书简介</div>
+    <div class="summary" v-if="bookinfo.summary">
+      <title text="图书简介"></title>
       <p class="desc">{{bookinfo.summary}}</p>
+    </div>
+    <div class="comment">
+      <title text="图书评论"></title>
+      <textarea class="textarea" v-model="comment" :maxlength="80" placeholder="请输入图书短评"></textarea>
+      <div class="location">
+        地理位置：
+        <switch color="#ea5a49" :checked="location" @change="getLocation"></switch>
+        <span class="text">{{location}}</span>
+      </div>
+      <div class="phone">
+        手机型号：
+        <switch color="#ea5a49" :checked="phone" @change="getPhone"></switch>
+        <span class="text">{{phone}}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -32,12 +46,19 @@
 <script>
   import { get } from '@/utils.js'
   import Rate from '@/components/Rate'
+  import Title from '@/components/Title'
+
+  const ak = 'eYsFCtBkiUVy1odRHsBNXPSnWpPYwsrs'
+  const url = 'http://api.map.baidu.com/geocoder/v2/?pois=1'
 
   export default {
     data() {
       return {
         id: '',
-        bookinfo: null
+        bookinfo: null,
+        comment: '',
+        location: '',
+        phone: ''
       }
     },
     mounted() {
@@ -53,10 +74,48 @@
             title: res.data.bookinfo.title
           })
         }
+      },
+      getLocation(e) {
+        if (e.target.value) {
+          let _this = this
+          wx.getLocation({
+            success(res) {
+              const location = `${res.latitude},${res.longitude}`
+              wx.request({
+                url,
+                data: {
+                  ak: ak,
+                  location: location,
+                  output: 'json'
+                },
+                success: function(res) {
+                  if (res.statusCode === 200) {
+                    _this.location = res.data.result.addressComponent.city
+                  }
+                }
+              })
+            }
+          })
+        } else {
+          this.location = ''
+        }
+      },
+      getPhone(e) {
+        let _this = this
+        if (e.target.value) {
+          wx.getSystemInfo({
+            success(phoneInfo) {
+              _this.phone = phoneInfo.model
+            }
+          })
+        } else {
+          this.phone = ''
+        }
       }
     },
     components: {
-      Rate
+      Rate,
+      Title
     }
   }
 </script>
@@ -105,16 +164,9 @@
     }
   }
   .tags {
-    .title {
-      padding: 0 10px;
-      height: 30px;
-      line-height: 30px;
-      background: #f5f5f5;
-      font-size: 14px;
-    }
     .badge-list {
       padding: 0 10px;
-      margin: 10px 0;
+      margin: 10px 0 5px;
       display: flex;
       flex-wrap: wrap;
       .badge {
@@ -129,18 +181,29 @@
     }
   }
   .summary {
-    .title {
-      padding: 0 10px;
-      height: 30px;
-      line-height: 30px;
-      background: #f5f5f5;
-      font-size: 14px;
-    }
     .desc {
-      padding: 10px 15px 0;
+      padding: 10px;
       line-height: 20px;
       font-size: 12px;
       color: #666;
+    }
+  }
+  .comment {
+    .textarea {
+      width: 355px;
+      height: 60px;
+      padding: 10px;
+      line-height: 15px;
+      font-size: 12px;
+    }
+    .location {
+      padding: 0 10px;
+      font-size: 12px;
+    }
+    .phone {
+      margin-top: 5px;
+      padding: 0 10px;
+      font-size: 12px;
     }
   }
 }
