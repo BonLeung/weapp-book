@@ -40,4 +40,7 @@ router.get('/books/:id', controllers.books.get)
 
 router.get('/top', controllers.top.get)
 
+router.post('/comments', controllers.comments.post)
+router.get('/comments', controllers.comments.get)
+
 module.exports = router

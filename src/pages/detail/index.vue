@@ -39,14 +39,19 @@
         <switch color="#ea5a49" :checked="phone" @change="getPhone"></switch>
         <span class="text">{{phone}}</span>
       </div>
+      <div class="btn-wrap">
+        <button class="btn" @click="addComment">评论</button>
+      </div>
     </div>
+    <CommentList :comments="comments"></CommentList>
   </div>
 </template>
 
 <script>
-  import { get } from '@/utils.js'
+  import { get, post } from '@/utils.js'
   import Rate from '@/components/Rate'
   import Title from '@/components/Title'
+  import CommentList from '@/components/CommentList'
 
   const ak = 'eYsFCtBkiUVy1odRHsBNXPSnWpPYwsrs'
   const url = 'http://api.map.baidu.com/geocoder/v2/?pois=1'
@@ -58,12 +63,19 @@
         bookinfo: null,
         comment: '',
         location: '',
-        phone: ''
+        phone: '',
+        userinfo: {},
+        comments: []
       }
     },
     mounted() {
       this.id = this.$root.$mp.query.id
       this.getDetail()
+      const userinfo = wx.getStorageSync('userinfo')
+      if (userinfo) {
+        this.userinfo = userinfo
+      }
+      this.getComments()
     },
     methods: {
       async getDetail() {
@@ -111,11 +123,43 @@
         } else {
           this.phone = ''
         }
+      },
+      async addComment() {
+        const data = {
+          bookid: this.id,
+          comment: this.comment,
+          location: this.location,
+          phone: this.phone,
+          openid: this.userinfo.openId
+        }
+        if (!data.openid) {
+          wx.showToast({
+            title: '您还没有登录，请先登录',
+            icon: 'none'
+          })
+          return
+        }
+        if (!data.comment) {
+          wx.showToast({
+            title: '评论不能为空',
+            icon: 'none'
+          })
+          return
+        }
+        const res = await post('/weapp/comments', { ...data })
+        console.log(res)
+      },
+      async getComments() {
+        const res = get('/weapp/comments', { bookid: this.id })
+        if (res.code === 0) {
+          this.comments = res.data.list
+        }
       }
     },
     components: {
       Rate,
-      Title
+      Title,
+      CommentList
     }
   }
 </script>
@@ -204,6 +248,10 @@
       margin-top: 5px;
       padding: 0 10px;
       font-size: 12px;
+    }
+    .btn-wrap {
+      padding: 0 10px;
+      margin-top: 5px;
     }
   }
 }

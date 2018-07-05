@@ -46,7 +46,7 @@ export default {
           icon: 'success'
         })
         this.userInfo = userInfo
-        wx.setStorageSync('userInfo', userInfo)
+        wx.setStorageSync('userinfo', userInfo)
       }).catch(() => {
         wx.hideLoading()
         wx.showToast({
