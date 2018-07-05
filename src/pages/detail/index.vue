@@ -26,8 +26,8 @@
       <title text="图书简介"></title>
       <p class="desc">{{bookinfo.summary}}</p>
     </div>
-    <div class="comment">
-      <title text="图书评论"></title>
+    <div class="comment" v-show="showAdd">
+      <title text="添加评论"></title>
       <textarea class="textarea" v-model="comment" :maxlength="80" placeholder="请输入图书短评"></textarea>
       <div class="location">
         地理位置：
@@ -43,7 +43,7 @@
         <button class="btn" @click="addComment">评论</button>
       </div>
     </div>
-    <CommentList :comments="comments"></CommentList>
+    <CommentList v-if="comments.length" :comments="comments"></CommentList>
   </div>
 </template>
 
@@ -66,6 +66,17 @@
         phone: '',
         userinfo: {},
         comments: []
+      }
+    },
+    computed: {
+      showAdd() {
+        if (!this.userinfo) {
+          return false
+        }
+        if (this.comments.filter(comment => comment.openid === this.userinfo.openId).length) {
+          return false
+        }
+        return true
       }
     },
     mounted() {
@@ -148,9 +159,12 @@
         }
         const res = await post('/weapp/comments', { ...data })
         console.log(res)
+        if (res.code === 0) {
+          this.getComments()
+        }
       },
       async getComments() {
-        const res = get('/weapp/comments', { bookid: this.id })
+        const res = await get('/weapp/comments', { bookid: this.id })
         if (res.code === 0) {
           this.comments = res.data.list
         }
@@ -164,7 +178,7 @@
   }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .detail {
   .book-wrap {
     display: flex;
