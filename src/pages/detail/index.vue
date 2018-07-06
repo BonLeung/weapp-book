@@ -26,6 +26,9 @@
       <title text="图书简介"></title>
       <p class="desc">{{bookinfo.summary}}</p>
     </div>
+    <div class="share">
+      <button class="btn" open-type="share">转发给好友</button>
+    </div>
     <div class="comment" v-show="showAdd">
       <title text="添加评论"></title>
       <textarea class="textarea" v-model="comment" :maxlength="80" placeholder="请输入图书短评"></textarea>
@@ -79,6 +82,19 @@
         return true
       }
     },
+    onShareAppMessage(res) {
+      if (res.from === 'button') {
+        // 来自页面内转发按钮
+        console.log(res.target)
+      }
+      return {
+        title: this.bookinfo.title,
+        path: `pages/detail/main?id=${this.bookinfo.id}`
+      }
+    },
+    onShow() {
+      this._init()
+    },
     mounted() {
       this.id = this.$root.$mp.query.id
       this.getDetail()
@@ -89,6 +105,11 @@
       this.getComments()
     },
     methods: {
+      _init() {
+        this.comment = ''
+        this.location = ''
+        this.phone = ''
+      },
       async getDetail() {
         const res = await get(`/weapp/books/${this.id}`)
         if (res && res.code === 0) {
@@ -158,7 +179,6 @@
           return
         }
         const res = await post('/weapp/comments', { ...data })
-        console.log(res)
         if (res.code === 0) {
           this.getComments()
         }
@@ -245,6 +265,9 @@
       font-size: 12px;
       color: #666;
     }
+  }
+  .share {
+    padding: 0 10px;
   }
   .comment {
     .textarea {

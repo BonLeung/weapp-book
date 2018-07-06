@@ -3,14 +3,18 @@ const { mysql } = require('../qcloud')
 const doubanIsbnApi = 'https://api.douban.com/v2/book/isbn/'
 
 async function all(ctx, next) {
-  const { page, size = 10 } = ctx.request.query
+  const { page, size = 10, openid } = ctx.request.query
   const offset = (Number(page) - 1 || 0) * size
-  const books = await mysql('books')
+  const mysqlSelect = mysql('books')
                         .select('books.*', 'cSessionInfo.user_info')
                         .join('cSessionInfo', 'books.openid', '=', 'cSessionInfo.open_id')
-                        .limit(size)
-                        .offset(offset)
                         .orderBy('books.id', 'desc')
+  let books
+  if (openid) {
+    books = await mysqlSelect.where('books.openid', openid)
+  } else {
+    books = await mysqlSelect.limit(size).offset(offset)
+  }
   const list = books.map(book => {
     const user_info = JSON.parse(book.user_info)
     return Object.assign({}, book, {

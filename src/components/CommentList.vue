@@ -1,7 +1,7 @@
 <template>
-  <div class="comment-list">
-    <title text="图书评论"></title>
-    <div class="comment" v-for="comment in comments" :key="comment.id">
+  <div class="comment-list" v-show="comments">
+    <title text="我的评论"></title>
+    <div class="comment" v-for="comment in comments" :key="comment.id" @click="handleClick(comment)">
       <div class="user">
         <div class="userinfo">
           <img class="avatar" :src="comment.userinfo.avatarUrl" alt="">
@@ -9,7 +9,9 @@
         </div>
         <div class="systeminfo">
           <div class="location" v-if="comment.location">{{comment.location}}---</div>
-          <div class="phone" v-if="comment.location">来自：{{comment.phone}}</div>
+          <div class="location" v-else>未知区域---</div>
+          <div class="phone" v-if="comment.phone">来自：{{comment.phone }}</div>
+          <div class="phone" v-else>来自：未知设备</div>
         </div>
       </div>
       <p class="comment-text">{{comment.comment}}</p>
@@ -21,7 +23,16 @@
 import Title from '@/components/Title'
 
 export default {
-  props: ['comments'],
+  props: ['comments', 'type'],
+  methods: {
+    handleClick(comment) {
+      if (this.type === 'user') {
+        wx.navigateTo({
+          url: '/pages/detail/main?id=' + comment.id
+        })
+      }
+    }
+  },
   components: {
     Title
   }
@@ -67,6 +78,7 @@ export default {
       }
       .comment-text {
         font-size: 12px;
+        line-height: 20px;
         color: #2d2d2d;
       }
     }
